@@ -370,9 +370,11 @@ window.__ModuleLoader__.load({
               row.style.display = 'flex'
               row.style.alignItems = 'center'
             }
+            // 2026-11-07：角标改绝对定位后需要一个定位参照，否则会相对更外层容器跑偏。
+            if (getComputedStyle(row).position === 'static') row.style.position = 'relative'
             const el = document.createElement('span')
             el.setAttribute('data-sa-unread', '1')
-            el.style.cssText = 'flex:0 0 auto;margin-left:auto;border-radius:999px;background:#f59e0b;color:#fff;text-align:center;font-variant-numeric:tabular-nums;box-shadow:0 0 0 1px rgba(0,0,0,.16);pointer-events:none;box-sizing:border-box;'
+            el.style.cssText = 'position:absolute;right:6px;top:50%;transform:translateY(-50%);flex:0 0 auto;border-radius:999px;background:#f59e0b;color:#fff;text-align:center;font-variant-numeric:tabular-nums;box-shadow:0 0 0 1px rgba(0,0,0,.16);pointer-events:none;box-sizing:border-box;'
             row.appendChild(el)
             badge = el
           }
@@ -1180,6 +1182,8 @@ window.__ModuleLoader__.load({
       useStyleOnce()
       const { data, dead } = useTickets()
       const [ownerIds, setOwnerIds] = useState(null)
+  // 2026-11-07：dock 默认收起。有活跃单时它挂在输入框上方，展开状态会挤到宿主提示区。
+  const [dockOpen, setDockOpen] = useState(false)
       useEffect(() => {
         let alive = true
         const pull = async () => {
@@ -1206,6 +1210,7 @@ window.__ModuleLoader__.load({
       const active = Number(data.active || 0)
       if (!active) return null
       const rows = (data.tickets || []).filter((t) => t.state !== 'done')
+  const shownRows = dockOpen ? rows.slice(0, 4) : []
       const counts = data.counts || {}
       const order = ['running', 'ready', 'queued', 'blocked']
       return h('div', { 'data-superagent-panel': 'dock', style: { display: 'flex', flexDirection: 'column', gap: 4, padding: '6px 10px', margin: '4px 0 0 0', border: '1px solid rgba(127,127,127,.28)', borderRadius: 8, fontSize: 12, lineHeight: 1.45, background: 'rgba(127,127,127,.06)' } },
@@ -1213,9 +1218,10 @@ window.__ModuleLoader__.load({
           h('span', { style: { fontWeight: 600, opacity: .9 } }, '工单'),
           h('span', { style: { opacity: .38, fontVariantNumeric: 'tabular-nums' }, title: sid || '宿主没把 sessionId 注进来' }, sid ? sid.replace(/^session-/, '').slice(0, 8) + ' · 决策人' : '会话未知'),
           h('span', { style: { opacity: .7 } }, order.filter((k) => counts[k]).map((k) => STATE_META[k].label + ' ' + counts[k]).join(' · ')),
-          h('span', { style: { marginLeft: 'auto', opacity: .45 } }, '看全部 → 左侧栏「工单」'),
+          h('span', { style: { marginLeft: 'auto', opacity: .55, cursor: 'pointer' }, onClick: () => setDockOpen((v) => !v) }, dockOpen ? '收起' : rows.length + ' 条 · 展开'),
+        h('span', { style: { opacity: .45, marginLeft: 10 } }, '看全部 → 左侧栏「工单」'),
         ),
-        ...rows.slice(0, 4).map((t) => {
+        ...shownRows.map((t) => {
           const m = STATE_META[t.state] || STATE_META.queued
           return h('div', { key: t.id, style: { display: 'flex', alignItems: 'baseline', gap: 8 } },
             h('span', { style: { width: 6, height: 6, borderRadius: 3, background: m.color, display: 'inline-block', flex: '0 0 auto' } }),

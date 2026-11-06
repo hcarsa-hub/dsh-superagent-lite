@@ -14,6 +14,16 @@
 
 内核里 **31 个 `sa_*` 工具**：工单（submit/advance/list/next/transfer/archive/evidence/attach）、派活（run/fanout/tell/role/agents/owners）、双筛（judge/verdict/report/escalate/requirements）、运维（watchdog/progress/compact/sendback/ingress/stats/whoami/archive/restore）。
 
+## 界面
+
+| 看板（四态一屏） | 表格 + 判词抽屉 |
+|---|---|
+| ![看板](docs/screenshots/kanban.png) | ![表格与判词](docs/screenshots/table-and-judge.png) |
+
+![设置与体检](docs/screenshots/settings.png)
+
+> 截图来自真实运行的实例：左列是看板四态（排队 / 处理中 / 待验收 / 错误），中右是判词抽屉与体检报告；数据源为 `handoff/superagent/state.json`。
+
 ## 快速开始（三步，全部可回滚）
 
 ```powershell
