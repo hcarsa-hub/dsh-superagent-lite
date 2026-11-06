@@ -1,0 +1,17 @@
+# dsh-plugin-handoff-watch v0.1.0 —— 宿主 profile 的 cordis.patch.yml 插入片段
+#
+# 用法：本包是**可选配套**（不是内核的一部分）。要装时才 link + 贴下面这条 insert + 重启宿主。
+# 注意：queueDir 必须与 dsh-plugin-subagent-lite 的 queueDir、Codex hook 的 HANDOFF_QUEUE 指向同一个目录。
+
+- insert:
+    - id: handoff-watch
+      name: dsh-plugin-handoff-watch
+      config:
+        # Codex hook 写的队列目录（必填；留空会在启动时报清晰错误并拒绝启动）
+        queueDir: ''
+        # 可选：投递目标会话，默认 $DSH_SESSION_ID
+        # sessionId: '<session id>'
+        # 可选：轮询间隔（毫秒），默认 2000，最小 500
+        # pollMs: 2000
+        # 可选：消息标题，默认 'handoff 就绪'
+        # title: 'handoff 就绪'

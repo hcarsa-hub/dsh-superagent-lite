@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "dsh-plugin-subagent-lite 系统框图",
+    "subtitle": "工单内核（31 个 sa_* 工具）+ 角色（owner / worker / judge）+ 证据链；面板 / watcher / 监控 / QQ 均为可选配套",
+    "locale": "zh-CN",
+    "output": ".archify/architecture-subagent-lite-20261106-234259/architecture.html",
+    "quality_profile": "showcase",
+    "animation": "none",
+    "views": [
+      {
+        "id": "dispatch",
+        "label": "派活",
+        "focus": [
+          "owner",
+          "kernel",
+          "tick",
+          "workers"
+        ],
+        "note": "owner 建单 → tick 按 kind 挑人 → worker 收到 brief"
+      },
+      {
+        "id": "sieve",
+        "label": "双筛",
+        "focus": [
+          "kernel",
+          "workers",
+          "judges"
+        ],
+        "note": "worker 自报 final → ready → 自动送审 → judge 判 pass/fail"
+      },
+      {
+        "id": "evidence",
+        "label": "证据与状态",
+        "focus": [
+          "kernel",
+          "state",
+          "evidence",
+          "log"
+        ],
+        "note": "原子写 state.json；产物进 evidence/<id>/ 并登记 manifest"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "owner",
+      "type": "external",
+      "label": "Owner 会话",
+      "sublabel": "决策 / 派单 / 收口",
+      "icon": "person",
+      "pos": [
+        40,
+        110
+      ],
+      "size": [
+        170,
+        66
+      ]
+    },
+    {
+      "id": "kernel",
+      "type": "backend",
+      "label": "工单内核 lite2",
+      "sublabel": "31 个 sa_* 工具 · 状态机",
+      "tag": "零第三方依赖",
+      "pos": [
+        330,
+        100
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "workers",
+      "type": "external",
+      "label": "Worker 会话",
+      "sublabel": "coder_1..4 [code] · test_1 [test]",
+      "icon": "frontend",
+      "pos": [
+        700,
+        105
+      ],
+      "size": [
+        200,
+        68
+      ]
+    },
+    {
+      "id": "judges",
+      "type": "external",
+      "label": "Judge 会话",
+      "sublabel": "judge_1 主判 · judge_2 备份",
+      "icon": "security",
+      "pos": [
+        970,
+        105
+      ],
+      "size": [
+        200,
+        68
+      ]
+    },
+    {
+      "id": "tick",
+      "type": "backend",
+      "label": "tick 引擎",
+      "sublabel": "自动派单 / 超时 / watchdog",
+      "pos": [
+        330,
+        250
+      ],
+      "size": [
+        220,
+        62
+      ]
+    },
+    {
+      "id": "state",
+      "type": "database",
+      "label": "state.json",
+      "sublabel": "工单 + outbox（原子写）",
+      "pos": [
+        700,
+        245
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "evidence",
+      "type": "database",
+      "label": "evidence/ · archive/",
+      "sublabel": "产物 + manifest + 判词",
+      "pos": [
+        970,
+        245
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "panel",
+      "type": "frontend",
+      "label": "面板 panel（可选）",
+      "sublabel": "工单 / 归档 / 判词 / 设置",
+      "pos": [
+        330,
+        380
+      ],
+      "size": [
+        220,
+        62
+      ]
+    },
+    {
+      "id": "log",
+      "type": "database",
+      "label": "lite.log · watchdog.json",
+      "sublabel": "审计 / 巡检基线",
+      "pos": [
+        700,
+        375
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "qq",
+      "type": "external",
+      "label": "QQ / 定时（可选）",
+      "sublabel": "ingress 外部事件（key 去重）",
+      "pos": [
+        700,
+        505
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "watch3",
+      "type": "backend",
+      "label": "handoff-watch3（可选）",
+      "sublabel": "Codex 桥 → 行首锚定 → schedule",
+      "pos": [
+        330,
+        510
+      ],
+      "size": [
+        220,
+        62
+      ]
+    },
+    {
+      "id": "ctxmon",
+      "type": "backend",
+      "label": "ctx-monitor（可选）",
+      "sublabel": "水位越线 → 告警 → ingress",
+      "pos": [
+        330,
+        635
+      ],
+      "size": [
+        200,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "stateDir（~/.dsh/subagent）",
+      "wraps": [
+        "state",
+        "evidence",
+        "log"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "owner-submit",
+      "from": "owner",
+      "to": "kernel",
+      "label": "建单 / 派单",
+      "variant": "emphasis"
+    },
+    {
+      "id": "kernel-workers",
+      "from": "kernel",
+      "to": "workers",
+      "label": "派活 ⇄ 自报",
+      "variant": "emphasis"
+    },
+    {
+      "id": "kernel-judges",
+      "from": "kernel",
+      "to": "judges",
+      "label": "送审 ⇄ 判"
+    },
+    {
+      "id": "tick-kernel",
+      "from": "tick",
+      "to": "kernel",
+      "label": "派单 / 超时"
+    },
+    {
+      "id": "kernel-state",
+      "from": "kernel",
+      "to": "state",
+      "label": "原子写"
+    },
+    {
+      "id": "kernel-evidence",
+      "from": "kernel",
+      "to": "evidence",
+      "label": "sa_attach"
+    },
+    {
+      "id": "kernel-log",
+      "from": "kernel",
+      "to": "log",
+      "label": "lite.log"
+    },
+    {
+      "id": "panel-state",
+      "from": "panel",
+      "to": "state",
+      "label": "读单 / commands",
+      "variant": "dashed"
+    },
+    {
+      "id": "watch3-schedule",
+      "from": "watch3",
+      "to": "workers",
+      "label": "schedule 投递",
+      "variant": "dashed"
+    },
+    {
+      "id": "ctxmon-kernel",
+      "from": "ctxmon",
+      "to": "kernel",
+      "label": "越线建单",
+      "variant": "security"
+    },
+    {
+      "id": "qq-kernel",
+      "from": "qq",
+      "to": "kernel",
+      "label": "ingress 建单",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "状态机（不可跳级）",
+      "items": [
+        "queued → running → ready → done",
+        "任意态可 → blocked；blocked 可回 queued",
+        "只有 ready 能被判，判 pass 后 owner 才可 done"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "双筛与角色",
+      "items": [
+        "worker 交证据并 sa_report final:true",
+        "judge 独立判 sa_verdict，不改代码",
+        "owner 收口 sa_advance done —— 判定不归 owner"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "可选配套（缺了只是降级）",
+      "items": [
+        "面板 / watcher3 / ctx-monitor / Codex 桥 / QQ ingress",
+        "宿主 subagents·schedule 缺失时给明确错误",
+        "本包零第三方依赖，不内嵌模型"
+      ]
+    }
+  ]
+}

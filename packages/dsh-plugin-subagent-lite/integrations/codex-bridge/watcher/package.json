@@ -1,0 +1,22 @@
+{
+  "name": "dsh-plugin-handoff-watch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional companion: deliver Codex Stop-hook queue events to a DSH session (skips sa-ticket handoffs).",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "package.json",
+    "README.md",
+    "cordis.patch.yml"
+  ],
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

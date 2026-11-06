@@ -1,0 +1,28 @@
+{
+  "_comment": "示例：把 Codex 的 Stop / PermissionRequest 钩子指到本目录的 .cmd 启动器。字段名以你机器上的 Codex 版本为准（不同版本 hooks 结构可能略有差异）。路径里的反斜杠在 JSON 里要转义，或直接用正斜杠。改完这个文件后必须重新信任（见 README 已知坑②）。",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:/path/to/integrations/codex-bridge/run-stop-hook.cmd\""
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:/path/to/integrations/codex-bridge/run-permission-hook.cmd\"",
+            "timeout": 60000
+          }
+        ]
+      }
+    ]
+  }
+}

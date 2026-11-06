@@ -1,0 +1,15 @@
+@echo off
+rem dsh-plugin-subagent-lite / Codex PermissionRequest hook 启动器（模板）
+rem
+rem 与 run-stop-hook.cmd.template 同理：%~dp0 定位同目录脚本，避免绝对路径；
+rem node 优先用 NODE_EXE，否则 PATH 里的 node。
+rem 注意：这个 hook 是「同步等待」的——它会轮询 res/<id>.json 直到超时，别把它改成异步。
+setlocal
+set "SCRIPT=%~dp0request-hook.mjs"
+if defined NODE_EXE (
+  set "NODE_BIN=%NODE_EXE%"
+) else (
+  set "NODE_BIN=node"
+)
+"%NODE_BIN%" "%SCRIPT%"
+exit /b 0

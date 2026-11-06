@@ -1,0 +1,12 @@
+# 依赖与产物
+node_modules/
+dist/
+*.zip
+*.tgz
+*.log
+
+# 本机
+.DS_Store
+Thumbs.db
+.env
+*.local

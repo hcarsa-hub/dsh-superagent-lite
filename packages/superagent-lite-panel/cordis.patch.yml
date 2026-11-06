@@ -1,0 +1,7 @@
+# superagent panel v33
+- insert:
+    - id: superagent-panel
+      name: 'dsh-superagent-lite-panel'
+      config:
+        stateDir: ''          # 空 = <home>/.dsh/subagent
+        sessionId: '<owner 会话 id>'   # TODO 面板默认投递目标

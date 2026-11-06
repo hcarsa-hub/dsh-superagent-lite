@@ -1,0 +1,14 @@
+{
+  "name": "dsh-plugin-handoff-watch",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "handoff + approval watcher (skips superagent sa-ticket handoffs)",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "package.json"
+  ]
+}

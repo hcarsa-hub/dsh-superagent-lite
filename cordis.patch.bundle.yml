@@ -1,0 +1,27 @@
+# superagent 轻量捆绑包（dsh-superagent-lite-bundle 0.1.4）—— 贴到 <profile>/cordis.patch.yml 末尾
+# 三条 insert 对应 packages/ 下三个插件；config 里的 TODO 必须按目标机器改成真实路径/会话 id
+
+- insert:
+    - id: subagent-lite
+      name: dsh-plugin-subagent-lite
+      config:
+        stateDir: ''          # 空 = <home>/.dsh/subagent
+        ownerSessions: []      # TODO 填 owner 会话 id（空 = 所有写工具被拒）
+        queueDir: ''           # 空 = <stateDir>/../queue（内核口径）；hook 与 watcher 必须指同一目录
+        autoJudge: true        # true = ready 自动送审给 roles.judges；没登记 judge 时自动跳过，owner 仍收通知
+        judgeRotate: true      # true = 多个 judge 时轮流派（关掉 = 全进 judges[0]）
+
+- insert:
+    - id: superagent-panel
+      name: dsh-superagent-lite-panel
+      config:
+        stateDir: ''          # TODO 与上面 stateDir 一致
+        sessionId: '<owner 会话 id>'   # TODO 面板默认投递目标
+
+- insert:
+    - id: handoff-watch3
+      name: dsh-plugin-handoff-watch
+      config:
+        queueDir: ''           # 空 = <home>/.dsh/queue（与内核默认一致）；自定义 stateDir 时必须与上面逐字相同
+        sessionId: '<owner 会话 id>'   # TODO watcher 投递目标；留空 = 投递必失败（游标不推进，2s 重试）
+        skipSuperagentHandoff: true
