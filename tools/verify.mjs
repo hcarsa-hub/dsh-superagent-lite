@@ -47,7 +47,7 @@ const rel = (f) => relative(ROOT, f).replace(/\\/g, '/')
 
 // ── B. 包身份四件套 ──────────────────────────────────────────────
 const PKGS = [
-  { dir: 'dsh-plugin-subagent-lite', client: false },
+  { dir: 'dsh-plugin-superagent-lite', client: false },
   { dir: 'superagent-lite-panel', client: true },
   { dir: 'handoff-watch', client: false },
 ]
@@ -86,7 +86,7 @@ for (const p of PKGS) {
   if (!/watch[\s\S]{0,400}?sessionId:/.test(tpl)) fails.push('watcher 块缺 sessionId')
   const entries = (tpl.match(/^- insert:/gm) || []).length
   if (entries !== 3) fails.push('应有 3 条 insert，实得 ' + entries)
-  for (const id of ['subagent-lite', 'superagent-panel', 'handoff-watch3']) if (!new RegExp('^- insert:[\\s\\S]*?- id: ' + id, 'm').test(tpl)) fails.push('缺 insert: ' + id)
+  for (const id of ['superagent-lite', 'superagent-panel', 'handoff-watch3']) if (!new RegExp('^- insert:[\\s\\S]*?- id: ' + id, 'm').test(tpl)) fails.push('缺 insert: ' + id)
   rec('C-安装模板', fails.length === 0, fails.length ? fails.join(' / ') : '3 条 insert / autoJudge+judgeRotate 默认开 / watcher 带 sessionId')
 }
 

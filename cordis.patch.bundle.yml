@@ -1,9 +1,9 @@
-# superagent 轻量捆绑包（dsh-superagent-lite-bundle 0.1.4）—— 贴到 <profile>/cordis.patch.yml 末尾
+# superagent 轻量捆绑包（dsh-superagent-lite-bundle 0.1.6）—— 贴到 <profile>/cordis.patch.yml 末尾
 # 三条 insert 对应 packages/ 下三个插件；config 里的 TODO 必须按目标机器改成真实路径/会话 id
 
 - insert:
-    - id: subagent-lite
-      name: dsh-plugin-subagent-lite
+    - id: superagent-lite
+      name: dsh-plugin-superagent-lite
       config:
         stateDir: ''          # 空 = <home>/.dsh/subagent
         ownerSessions: []      # TODO 填 owner 会话 id（空 = 所有写工具被拒）

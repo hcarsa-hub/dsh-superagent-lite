@@ -1,0 +1,18 @@
+@echo off
+rem dsh-plugin-superagent-lite / Codex Stop hook 启动器（模板）
+rem
+rem 为什么不用绝对路径：把包复制到别的机器/目录后，绝对路径全失效；%~dp0 是这个 .cmd 自己所在目录，
+rem 所以脚本永远能找到同目录下的 codex-stop-hook.mjs。
+rem
+rem node 查找顺序：环境变量 NODE_EXE（你明确指定的 node.exe）→ PATH 里的 node。
+rem Windows 引号坑：路径里带空格时，命令与参数两端都要加引号，且整行别混用单引号；
+rem 写错的表现是 Codex 的 Stop hook 直接失败、events.jsonl 一行也不涨。
+setlocal
+set "SCRIPT=%~dp0codex-stop-hook.mjs"
+if defined NODE_EXE (
+  set "NODE_BIN=%NODE_EXE%"
+) else (
+  set "NODE_BIN=node"
+)
+"%NODE_BIN%" "%SCRIPT%"
+exit /b 0

@@ -3,8 +3,8 @@
 // 用法：
 //   node install.mjs                      # 只打印计划
 //   node install.mjs --apply              # 备份 patch → 建 junction → 追加 patch 块
-//   node install.mjs --apply --profile "C:\\Users\\<you>\\.dsh\\profiles\\desktop"
-import { existsSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, lstatSync, rmSync, copyFileSync, renameSync } from 'node:fs'
+//   node install.mjs --apply --profile "%USERPROFILE%\\.dsh\\profiles\\desktop"
+import { existsSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, lstatSync, realpathSync, copyFileSync, renameSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
@@ -19,7 +19,7 @@ const patchFile = join(PROFILE, 'cordis.patch.yml')
 const nm = join(PROFILE, 'node_modules')
 // 2026-11-07 修：目录名必须与 packages/ 实际目录一致，name 必须与 cordis.patch.bundle.yml 的 name 一致
 const PKGS = [
-  { dir: 'dsh-plugin-subagent-lite', name: 'dsh-plugin-subagent-lite' },
+  { dir: 'dsh-plugin-superagent-lite', name: 'dsh-plugin-superagent-lite' },
   { dir: 'superagent-lite-panel', name: 'dsh-superagent-lite-panel' },
   { dir: 'handoff-watch', name: 'dsh-plugin-handoff-watch' },
 ]
@@ -37,7 +37,7 @@ if (missingDirs.length) { console.error('[install] 缺目录: ' + missingDirs.ma
 console.log('[install] profile = ' + PROFILE)
 console.log('[install] mode    = ' + (apply ? 'APPLY（会改文件）' : 'dry-run（只打印）'))
 const plan = []
-for (const p of PKGS) {
+for (const p of [...PKGS, ...ALIASES]) {
   const target = join(HERE, 'packages', p.dir)
   const link = join(nm, ...p.name.split('/'))
   plan.push({ p, target, link })
@@ -53,6 +53,17 @@ if (!apply) {
   console.log('确认无误后重跑：node install.mjs --apply')
   process.exit(0)
 }
+const alreadyLinked = (link, target) => {
+  try { return lstatSync(link).isSymbolicLink() && realpathSync(link) === realpathSync(target) } catch { return false }
+}
+// Preflight every destination before changing anything. Existing backups are never overwritten.
+for (const { link, target } of plan) {
+  if (!alreadyLinked(link, target) && lstatSync(link, { throwIfNoEntry: false }) &&
+      lstatSync(link + '.bak-bundle', { throwIfNoEntry: false })) {
+    console.error('[install] 备份已存在，先手工处理: ' + link + '.bak-bundle')
+    process.exit(3)
+  }
+}
 // 1) 备份 patch
 if (existsSync(patchFile)) {
   const ts = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15)
@@ -66,34 +77,25 @@ if (existsSync(patchFile)) {
 for (const { target, link } of plan) {
   if (!existsSync(target)) { console.error('[apply] 缺目录: ' + target); process.exit(3) }
   mkdirSync(dirname(link), { recursive: true })
+  if (alreadyLinked(link, target)) {
+    console.log('[apply] junction 已指向目标，跳过: ' + link)
+    continue
+  }
   const st = lstatSync(link, { throwIfNoEntry: false })
   if (st) {
     const bak = link + '.bak-bundle'
-    rmSync(bak, { recursive: true, force: true })
-    try { renameSync(link, bak) } catch { rmSync(link, { recursive: true, force: true }) }
+    renameSync(link, bak)
     console.log('[apply] 旧链接已改名 -> ' + bak)
   }
   if (process.platform === 'win32') execFileSync('cmd', ['/c', 'mklink', '/J', link, target], { stdio: 'inherit' })
   else symlinkSync(target, link, 'dir')
   console.log('[apply] junction 完成: ' + link)
 }
-// 2b) 兼容别名 junction（同一份目录，两个名字都能解析）
-for (const a of ALIASES) {
-  const link = join(nm, ...a.name.split('/'))
-  const target = join(HERE, 'packages', a.dir)
-  if (!existsSync(target)) continue
-  mkdirSync(dirname(link), { recursive: true })
-  const st = lstatSync(link, { throwIfNoEntry: false })
-  if (st) rmSync(link, { recursive: true, force: true })
-  if (process.platform === 'win32') execFileSync('cmd', ['/c', 'mklink', '/J', link, target], { stdio: 'inherit' })
-  else symlinkSync(target, link, 'dir')
-  console.log('[apply] 兼容别名 junction: ' + a.name)
-}
 // 3) 追加 patch（幂等：按 id 判断）
 const cur = existsSync(patchFile) ? readFileSync(patchFile, 'utf8') : ''
 const add = readFileSync(BUNDLE_PATCH, 'utf8')
 // 2026-11-07 修：只认「未注释的」 `    - id: X` 行；旧版用 includes('id: X') 会被注释块误命中，导致一条都不追加
-const ids = ['subagent-lite', 'superagent-panel', 'handoff-watch3']
+const ids = ['superagent-lite', 'superagent-panel', 'handoff-watch3']
 const hasActiveId = (text, id) => text.split(/\r?\n/).some((l) => !/^\s*#/.test(l) && new RegExp('^    - id: ' + id + '\\s*$').test(l))
 const missingIds = ids.filter((id) => !hasActiveId(cur, id))
 if (missingIds.length === 0) {

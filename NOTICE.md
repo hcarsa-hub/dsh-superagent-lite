@@ -11,12 +11,12 @@
   - **角色分层**：决策（owner）/ 执行（worker）/ 独立验收（judge）三段式；
   - **证据优先**：产物与判词落盘、可追溯。
 - 我们没有采用什么：不复制其代码、不实现其子代理运行时、不绑定其模型或通信层。
-- 本项目的差异：轻量实现 —— 只做「工单状态机 + 派活 + 双筛 + 证据链」，以 DSH 插件形式提供 31 个 `sa_*` 工具，执行体完全由宿主（`schedule` / `subagents` / 会话）提供。
+- 本项目的差异：轻量实现 —— 只做「工单状态机 + 派活 + 双筛 + 证据链」，以 DSH 插件形式提供 32 个 `sa_*` 工具（含已并入内核的 `sa_steer`），执行体由宿主服务与会话提供；Codex 属可选外部执行体。
 
 ## 2. Archify（图表渲染，仅用于生成文档图）
 
 - 仓库：https://github.com/tt-a1i/archify ｜ 许可：MIT License, Copyright (c) 2026 tt-a1i (Archify)
-- 用途：`handoff/dist/dsh-plugin-subagent-lite/docs/diagrams/architecture.*` 这套图及其候选 JSON 由 Archify 3.2.0 生成。
+- 用途：内核包 `docs/diagrams/architecture.*` 这套存档图及其候选 JSON 由 Archify 3.2.0 生成；存档不作为补丁后的工具数量与状态迁移依据，当前事实见内核 README。
 - 说明：本仓库只分发**生成产物**（HTML/PNG/候选 JSON），不包含也不依赖 Archify 代码。
 
 ## 3. 第三方商标

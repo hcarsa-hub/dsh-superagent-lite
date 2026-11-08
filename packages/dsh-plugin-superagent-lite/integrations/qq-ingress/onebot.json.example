@@ -1,0 +1,22 @@
+{
+  "_readme": [
+    "复制成 onebot.json 再改（example 本身不会被读取）。",
+    "fail-closed：allow.groups 与 allow.users 全空 → 桥直接拒绝启动（这是故意的，空白名单不等于放行）。",
+    "1) allow.groups 填允许建单的群号；2) allow.users 填允许的 QQ 号（群里还要在 allow.users 里才算发送者白名单）；",
+    "3) selfId 填 NapCat 登录的那个机器人 QQ 号（用于 @ 门控）；",
+    "4) ingressFile 必须填，且与 dsh-plugin-superagent-lite 的 config.ingressFile 是同一个文件；",
+    "5) sessionId 可选：把从 QQ 建的工单归到某个会话；不填走 kernel 兜底。"
+  ],
+  "wsUrl": "ws://127.0.0.1:3001",
+  "selfId": "<BOT_QQ_ID>",
+  "ingressFile": "<ABSOLUTE_PATH_TO_ingress.jsonl>",
+  "sessionId": "<OWNER_SESSION_ID_or_empty>",
+  "prefix": "!",
+  "requireMention": true,
+  "replyOnAccept": true,
+  "logRaw": false,
+  "allow": {
+    "groups": ["<ALLOWED_GROUP_ID>"],
+    "users": ["<ALLOWED_QQ_ID>"]
+  }
+}

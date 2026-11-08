@@ -1,0 +1,37 @@
+# dsh-plugin-superagent-lite v0.1.9 —— 宿主 profile 的 cordis.patch.yml 插入片段
+#
+# 用法：
+#   1) 先把本包 link 到 <profile>/node_modules/dsh-plugin-superagent-lite（见 README「安装」）
+#   2) 把下面这条 - insert: 整段贴到 <profile>/cordis.patch.yml
+#   3) 重启宿主（这个插件不需要热加载）
+#
+# 约定：本文件只有 **一条** active insert（id: superagent-lite / name: dsh-plugin-superagent-lite），
+# config 只放三个必答项：stateDir / ownerSessions / queueDir；其余可选键见文末注释。
+
+- insert:
+    - id: superagent-lite
+      name: dsh-plugin-superagent-lite
+      config:
+        # 数据目录；留空 = <home>/.dsh/subagent
+        stateDir: ''
+
+        # 【必填】owner 会话 id 列表（谁有权派活 / 收口 / 改状态）；为空时所有写工具都会被拒
+        ownerSessions: []
+
+        # Codex Stop 事件队列目录；留空 = <stateDir>/queue
+        # hook 的 HANDOFF_QUEUE、kernel 的 queueDir、watcher 的 queueDir 必须指向同一个目录
+        queueDir: ''
+
+# 可选键（需要时自行取消注释并并入上面的 config）：
+#   sessionId: '<默认投递会话 id>'
+#   ingressFile: '<外部事件投递队列文件>'
+#   inboxFile: '<Codex handoff 文件>'
+#   subagentProvider: 'spawn'
+#   autoDispatch: false
+#   autoDispatchMs: 15000
+#   watchdogAlerts: false
+#   watchdogMs: 60000
+#   attachRoots: ['C:/work/my-project']
+#   attachMaxBytes: 8388608
+#   concurrency: { maxConcurrent: 1, defaultPriority: 5 }
+#   policy: { runningTimeoutMs: 300000, maxDeliverAttempts: 30, maxRunAttempts: 3 }
