@@ -60,7 +60,7 @@ node install.mjs --profile "$profile_dir" --apply
 | 面板 `sessionId` | 同上 | 面板没有默认投递目标 |
 | watcher `sessionId` | 同上 | **handoff 自动投递直接断**（宿主进程没有 `DSH_SESSION_ID`） |
 | 内核 `attachRoots` | 显式加入项目产物目录的绝对路径 | 默认仅 stateDir 父目录（通常 `~/.dsh`）与系统临时目录，敏感路径仍拒绝，任意项目产物不能直接 attach |
-| 内核 `config.queueDir`、watcher `config.queueDir` | 内核默认 `<stateDir>/../queue`、watcher 默认 `~/.dsh/queue`；自定义 stateDir 时显式指向同一目录 | 事件读不到；不能只凭 `codexOffset` 不动就判定路径错 |
+| 内核 `config.queueDir`、watcher `config.queueDir` | 内核默认 `<stateDir>/../queue`、watcher 默认 `~/.dsh/queue`。**改了 `stateDir` 就必须同时写 `queueDir`，且两处必须逐字相同**（第三处是 hook 的 `HANDOFF_QUEUE`） | 事件读不到、工单不会自动 ready；不能只凭 `codexOffset` 不动就判定路径错 |
 | hook 环境变量 `HANDOFF_QUEUE`（桥启用时） | 显式指向上述队列；它不是第三个 config 键 | hook 默认值独立，可能写到另一个目录 |
 
 模板默认已经开了 **`autoJudge: true` + `judgeRotate: true`**：工单到 `ready` 会自动送审给 `owners.json` 里登记的第一个 judge，多个 judge 时轮流派；没登记 judge 时自动跳过，通知仍发给 owner。
