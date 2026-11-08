@@ -17,6 +17,8 @@
 
 `sa_steer` 仅 owner，参数为 `sessionId/text/mode`（auto/steer/followup），auto 下 running 走 steer、idle/unknown 走 followup；await 投递结果，同步/异步失败均 `{ok:false}`，不写账本/工单状态，Codex 执行体不支持。
 
+> **定位**：DSH 里的**轻量工单编排层**（派活 → 干 → 独立验收 → 收口）。它**不是** DeepSeek 官方 superagent 的 lite 版或移植版；与本项目的差异与边界见 [`docs/comparison.md`](docs/comparison.md)。
+
 ## 界面
 
 | 看板（四态一屏） | 表格 + 判词抽屉 |
