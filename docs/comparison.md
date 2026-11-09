@@ -19,7 +19,7 @@
 - 内核**零第三方依赖**，单文件 `index.js`（约 237 KB），**32 个 `sa_*` 工具**；
 - 角色写进内核：`owner`（决策/派活/收口）· `worker`（执行交证据）· `judge`（独立验收）· `ops`；越权调用统一 `forbidden`；
 - 工单状态机 `queued → running → ready → done`（前三态可进 `blocked`，`done` 为终态）；
-- 证据链：`evidence/<id>/` + manifest + 缺件/孤儿检查（收口前要求 `orphan=0`）+ 逐文件 sha256；
+- 证据链：`evidence/<id>/` + manifest + 逐文件 sha256；缺件/孤儿由 `sa_evidence` 报告、watchdog 告警，`orphan=0` 是我们**流程上的收口要求**（工具不阻断收口）；
 - 双筛：worker `sa_report` 自报 → judge `sa_verdict` 判 → owner 机械核验后收口；
 - 可选配套：面板（看板/表格+判词/归档/设置+诊断）、Codex 桥（Stop 钩子自动推 ready）、QQ ingress、上下文监测、`sa_steer` 中途插话（限 DSH 生态）。
 
@@ -31,7 +31,7 @@
 | 谁执行 | agent 自己认领并在独立会话/目录里干 | 派给**指定 worker 会话**（`sa_fanout` / `sa_run` / Codex 后端） |
 | 交付形态 | 回到原对话（例如 PR/评论） | worker `sa_attach` + `sa_report`，**owner 收口** |
 | 角色与授权 | 有（authorization 文档整章） | 有，且**硬编码进内核**（owner/worker/judge/ops + kind 标签） |
-| 独立验收（双筛） | README 未描述 | **有**：judge 独立判词，owner 不得自判（工作流强制） |
+| 独立验收（双筛） | README 未描述 | **有**：judge 独立判词。工具层拦的是「既非 owner 也非 judge」的会话（即 **worker 不能自判**）；**owner 调 `sa_verdict` 在代码里是允许的**，owner 不自判是流程纪律，不是工具强制 |
 | 证据与可审计 | 有工作项概念 | `evidence/` + manifest + orphan=0 + sha256 + 归档按纪元滚动 |
 | 面板 | 有（只说「展示需要人看的事」） | 看板 / 表格+判词 / 归档 / 设置+诊断 |
 | 中途改需求 | README 未描述 | **`sa_steer`**：running 插到下一步、idle 起新回合（**仅 DSH**，Codex 除外） |
@@ -52,3 +52,15 @@
 > 受 DeepSeek 开源的 superagent 研究原型**启发**，独立实现的**轻量工单编排层**：把「派活 → 干 → 独立验收 → 收口」变成 DSH 里的状态机与证据链。
 
 避免使用：「官方 lite 版」「精简版」「兼容实现」「移植」「DeepSeek 官方插件」。
+
+## 六、机器强制 vs 流程要求（别混）
+
+对外讲的时候这两类要分开说，否则会被读代码的人当场指出（2026-11-09 一次实测判词就抓到了）：
+
+| 说法 | 实际 |
+|---|---|
+| 工单只能按 `queued → running → ready → done` 走，前三态可进 `blocked`，`done` 是终态 | ✅ **工具强制**（代码里的 NEXT 表决定，非法迁移直接拒） |
+| worker 不能给单下判词 | ✅ **工具强制**（`sa_verdict` 只允许 judge / owner 角色） |
+| judge 独立判、owner 收口 | ✅ **流程约定**（工具允许 owner 判，我们不用；判据与证据靠人守） |
+| 收口前 `orphan=0`、缺件为零 | ⚠ **流程要求**：`sa_evidence` 会报告缺件/孤儿、watchdog 会告警，但**工具不阻断** ready→done |
+| 命令与退出码要留痕 | ⚠ **约定**：manifest 只记 name/相对路径/字节/sha256；命令与退出码要作为附件内容自行留存 |
